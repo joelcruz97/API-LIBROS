@@ -6,6 +6,7 @@ app.use(express.json());
 
 
 let libros = [];
+let idLibroUnico = 1;
 
 app.get('/api/books',(req, res)=>{
     res.json({status:200,message:"success",data:libros});
@@ -37,20 +38,26 @@ app.get('/api/books/:id',(req, res)=>{
 
  
 
-app.post('/api/books', (req, res)=>{  const { id, titulo, autor, genero, anioPublicacion } = req.body ?? {};
-    
-    if (!id && !titulo && !autor && !genero && !anioPublicacion) {
+app.post('/api/books', (req, res)=>{  const { titulo, autor, genero, anioPublicacion } = req.body ?? {};
+
+    const datosCorrectos =
+        typeof titulo === "string" && titulo.trim() !== "" &&
+        typeof autor === "string" && autor.trim() !== "" &&
+        typeof genero === "string" && genero.trim() !== "" &&
+        Number.isInteger(anioPublicacion);
+
+    if (!datosCorrectos) {
         return res.status(400).json({
-            message: "Todos los campos son obligatorios. id, titulo, autor, genero, anioPublicacion "
+            message: "Todos los campos son obligatorios y deben tener el tipo correcto."
         });
     }
 
-    const libro = { id, titulo, autor, genero, anioPublicacion };
+    const libro = { id: idLibroUnico, titulo, autor, genero, anioPublicacion };
 
     libros.push(libro);
+    idLibroUnico ++;
 
     res.json({status:200,message:"success",data:libro});
-
 });
 
 
